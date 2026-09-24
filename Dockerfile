@@ -3,8 +3,12 @@ FROM eclipse-temurin:23-jdk
 
 WORKDIR /app
 
-# Copy your built JAR into the container
-COPY target/memorieshub-0.0.1-SNAPSHOT.jar app.jar
+# Copy Maven wrapper and project files
+COPY . .
+
+# Build the JAR inside the container
+RUN ./mvnw clean package -DskipTests
 
 # Run the JAR
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java","-jar","target/memorieshub-0.0.1-SNAPSHOT.jar"]
+
