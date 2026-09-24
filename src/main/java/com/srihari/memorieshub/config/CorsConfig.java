@@ -21,7 +21,11 @@ public class CorsConfig {
                 new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-                List.of("http://localhost:3000")
+                List.of(
+                        "http://localhost:3000",
+                        "https://momentspace-frontend.vercel.app",
+                        "https://momentspace-frontend-js7pzv5n8-srihari14.vercel.app"
+                )
         );
 
         configuration.setAllowedMethods(
