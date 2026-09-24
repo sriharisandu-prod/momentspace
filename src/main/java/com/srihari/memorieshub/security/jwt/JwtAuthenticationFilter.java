@@ -1,6 +1,5 @@
 package com.srihari.memorieshub.security.jwt;
 
-
 import com.srihari.memorieshub.security.userdetails.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,6 +22,15 @@ public class JwtAuthenticationFilter
     private final JwtService jwtService;
 
     private final CustomUserDetailsService customUserDetailsService;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getServletPath();
+
+        return path.equals("/auth/login")
+                || path.equals("/auth/register");
+    }
 
     @Override
     protected void doFilterInternal(
@@ -48,33 +56,43 @@ public class JwtAuthenticationFilter
         String token =
                 authHeader.substring(7);
 
-        String email =
-                jwtService.extractUsername(token);
+        try {
 
-        if (email != null &&
-                SecurityContextHolder.getContext()
-                        .getAuthentication() == null) {
+            String email =
+                    jwtService.extractUsername(token);
 
-            UserDetails userDetails =
-                    customUserDetailsService
-                            .loadUserByUsername(email);
+            if (email != null &&
+                    SecurityContextHolder
+                            .getContext()
+                            .getAuthentication() == null) {
 
-            if (jwtService.isTokenValid(
-                    token,
-                    userDetails
-            )) {
+                UserDetails userDetails =
+                        customUserDetailsService
+                                .loadUserByUsername(email);
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                if (jwtService.isTokenValid(
+                        token,
+                        userDetails
+                )) {
 
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authToken);
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(authToken);
+                }
             }
+
+        } catch (Exception e) {
+
+            // Invalid or expired JWT.
+            // Continue the request without authentication.
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(
