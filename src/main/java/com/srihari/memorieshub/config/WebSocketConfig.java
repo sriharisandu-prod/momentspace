@@ -29,6 +29,7 @@ public class WebSocketConfig
         );
     }
 
+
     @Override
     public void registerStompEndpoints(
             StompEndpointRegistry registry) {
@@ -43,4 +44,3 @@ public class WebSocketConfig
                 .withSockJS();
     }
 }
-
